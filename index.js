@@ -1,44 +1,20 @@
-//1.
-// Record 1
-// Record 5
-// Record 6
-// Record 2
-// Record 4
-// Record 3
-//2.
-const EventEmitter = require('events');
-class MyEmitter extends EventEmitter {};
+const fs = require('fs');
+const {Transform} = require('stream');
+const readline = require ('readline');
 
-const emitter = new MyEmitter();
+const arr = ['89.123.1.41', '34.48.240.111']
 
-const timer = (date) => {
-    const conver = date.split('-').reverse()
-    conver[1] -=  1
-    const dateConver = new Date(...conver)
-    return time = setInterval(() => {
-        const nowDate = new Date()
-        const s = dateConver - nowDate
-        const hours = parseInt(s/3600000)
-        const day = parseInt(hours/24)
-        const month = parseInt(day/30)
-        const year = parseInt(month/12)
-        if(hours <= 0){
-            clearInterval(time)
-            return console.log('timeout')
-        }
-        if(day <= 0){
-            console.log('day timeout')
-        }
-        if(month <= 0){
-            console.log('month timeout')
-        }
-        if(year <= 0){
-            console.log('year timeout')
-        }
-        console.log(year, month, day, hours)
-    }, 1000)
-}
+const file = readline.createInterface({
+    input: fs.createReadStream('./access.log', 'utf8'),
+    output: process.stdout,
+    terminal: false,
+})
 
-emitter.on('clock', timer)
-emitter.emit('clock', '10-21-1-2022')
-
+file.on('line', (line) => {
+    arr.forEach(el => {
+        if(line.indexOf(el) !== -1){
+            fs.writeFile(`./${el}_requests.log`, '\n', { flag: 'a' }, (err) => console.log(err));
+            fs.writeFile(`./${el}_requests.log`, line, { flag: 'a' }, (err) => console.log(err));
+        }
+    })
+})
